@@ -1,4 +1,4 @@
-import { AccessToken } from "livekit-server-sdk";
+import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import express from "express";
 import cors from "cors";
 
@@ -9,6 +9,14 @@ const port = 3000;
 const API_KEY = "APIbCNnidZtNjoF";
 
 const API_SECRET = "QJtdp3WystKBa6n31ya8MTDwzJ5neHqQhg8y8pT5flA";
+
+const livekitHost = "https://poc-test-7otdfht1.livekit.cloud";
+const svc = new RoomServiceClient(livekitHost, API_KEY, API_SECRET);
+
+// list rooms
+svc.listRooms().then((rooms) => {
+  console.log("existing rooms", rooms);
+});
 
 app.use(express.json());
 app.get("/", (req, res) => {
@@ -36,7 +44,7 @@ const createToken = async (participantName, roomName, role) => {
   });
   // console.log('admin',role)
   //  if (role === 'admin') {
-  console.log('participantName',participantName);
+  console.log("participantName", participantName);
   at.addGrant({
     roomJoin: true,
     room: roomName,
@@ -52,6 +60,12 @@ const createToken = async (participantName, roomName, role) => {
 
   return await at.toJwt();
 };
+
+app.get("/rooms", async (req, res) => {
+  const rooms = await svc.listRooms();
+  console.log("rooms", rooms);
+  res.send(rooms);
+});
 
 app.post("/token", async (req, res) => {
   const { identity, roomName, role } = req.body;
