@@ -2,15 +2,21 @@ import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import express from "express";
 import cors from "cors";
 
+
+import dotenv from "dotenv";
+
+dotenv.config();
+
+console.log(process.env.livekitServerURL); // Should print: 2c0c06d6975ee23e9ae32460ff0599b4
 const app = express();
 app.use(cors());
 const port = 3000;
 
-const API_KEY = "APIbCNnidZtNjoF";
+const API_KEY =  process.env.livekitLocalAPIKey;//"108cc770f923cf669912dfed679c73c3";
 
-const API_SECRET = "QJtdp3WystKBa6n31ya8MTDwzJ5neHqQhg8y8pT5flA";
+const API_SECRET =  process.env.livekitLocalSecret;   //"2c0c06d6975ee23e9ae32460ff0599b4";
 
-const livekitHost = "https://poc-test-7otdfht1.livekit.cloud";
+const livekitHost = process.env.livekitLocalURL///"http://localhost:7880";
 const svc = new RoomServiceClient(livekitHost, API_KEY, API_SECRET);
 
 // list rooms
@@ -41,6 +47,7 @@ const createToken = async (participantName, roomName, role) => {
     // Token to expire after 10 minutes
     ttl: 100000,
     name: participantName,
+    
   });
   // console.log('admin',role)
   //  if (role === 'admin') {
