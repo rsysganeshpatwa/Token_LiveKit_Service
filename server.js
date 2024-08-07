@@ -1,14 +1,7 @@
 import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import express from "express";
 import cors from "cors";
-import https from 'https';
-import fs from 'fs';
 
-
-const options = {
-  key: fs.readFileSync('/etc/nginx/ssl/nginx.key'),
-  cert: fs.readFileSync('/etc/nginx/ssl/nginx.crt')
-};
 
 import dotenv from "dotenv";
 
@@ -93,9 +86,6 @@ app.post("/token", async (req, res) => {
   console.log("Token generated:", tokenGen);
   res.send({ token: tokenGen });
 });
-// app.listen(port, () => {
-//   console.log(`Server listening at http://localhost:${port}`);
-// });
-https.createServer(options, app).listen(port, () => {
-  console.log(`HTTPS server running on https://localhost:${port}`);
-  })
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
+});
