@@ -1,33 +1,52 @@
-import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
+import {
+  AccessToken,
+  RoomServiceClient,
+  EgressClient,
+  EncodedFileOutput,
+  EncodedFileType,
+} from "livekit-server-sdk";
 import express from "express";
 import cors from "cors";
-
-
 import dotenv from "dotenv";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 dotenv.config();
 
-console.log(process.env.livekitServerURL); // Should print: 2c0c06d6975ee23e9ae32460ff0599b4
 const app = express();
 app.use(cors());
+app.use(express.json());
+
 const port = 3000;
 
-const API_KEY =  process.env.livekitLocalAPIKey;//"108cc770f923cf669912dfed679c73c3";
+const API_KEY = process.env.livekitLocalAPIKey;
+const API_SECRET = process.env.livekitLocalSecret;
+const livekitHost = process.env.livekitLocalURL;
 
-const API_SECRET =  process.env.livekitLocalSecret;   //"2c0c06d6975ee23e9ae32460ff0599b4";
-
-const livekitHost = process.env.livekitLocalURL///"http://localhost:7880";
 const svc = new RoomServiceClient(livekitHost, API_KEY, API_SECRET);
+const egressClient = new EgressClient(livekitHost, API_KEY, API_SECRET);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
-// list rooms
+const recordingsDir = path.join(__dirname, "out");
+console.log("out", recordingsDir);
+
+// Ensure recordings directory exists
+if (!fs.existsSync(recordingsDir)) {
+  fs.mkdirSync(recordingsDir, { recursive: true });
+}
+
+// List rooms
 svc.listRooms().then((rooms) => {
-  console.log("existing rooms", rooms);
+  // console.log("existing rooms", rooms);
 });
 
-app.use(express.json());
 app.get("/", (req, res) => {
   res.send("Live Kit Token API is running");
 });
+
 const generateRandomString = (length) => {
   let result = "";
   const characters =
@@ -44,26 +63,28 @@ const generateRandomString = (length) => {
 const createToken = async (participantName, roomName, role) => {
   const at = new AccessToken(API_KEY, API_SECRET, {
     identity: `${participantName}${generateRandomString(5)}`,
-    // Token to expire after 10 minutes
     ttl: 100000,
     name: participantName,
-    
+
   });
-  // console.log('admin',role)
-  //  if (role === 'admin') {
-  console.log("participantName", participantName);
-  at.addGrant({
+// Add metadata to the token
+at.metadata = JSON.stringify({ role: role });
+
+  console.log("participantName", participantName, "role", role);
+
+  // Set permissions based on the role
+  let grantOptions = {
     roomJoin: true,
     room: roomName,
-    canPublish: true,
-    canSubscribe: true,
-    canPublishData: true,
-  });
-  // } else if (role === 'user') {
-  //   at.addGrant({ roomJoin: true, room: roomName, canPublish: true, canSubscribe: false,canPublishData:true ,
+    canSubscribe: true,                  // Both can subscribe
+    canPublishData: role === 'admin',    // Admin can publish data
+  };
 
-  //    });
-  // }
+  // Add role to custom claims (metadata)
+ // at.metadata = { role }; // Add the role as a custom property
+  
+  // Add grant to the token
+  at.addGrant(grantOptions);
 
   return await at.toJwt();
 };
@@ -71,6 +92,7 @@ const createToken = async (participantName, roomName, role) => {
 app.get("/rooms", async (req, res) => {
   const rooms = await svc.listRooms();
   console.log("rooms", rooms);
+
   res.send(rooms);
 });
 
@@ -86,6 +108,9 @@ app.post("/token", async (req, res) => {
   console.log("Token generated:", tokenGen);
   res.send({ token: tokenGen });
 });
+
+
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);
 });
