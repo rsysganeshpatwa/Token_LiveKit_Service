@@ -77,7 +77,7 @@ at.metadata = JSON.stringify({ role: role });
     roomJoin: true,
     room: roomName,
     canSubscribe: true,                  // Both can subscribe
-    canPublishData: role === 'admin',    // Admin can publish data
+    
   };
 
   // Add role to custom claims (metadata)
