@@ -23,7 +23,7 @@ const port = 3000;
 
 const API_KEY = process.env.livekitLocalAPIKey;
 const API_SECRET = process.env.livekitLocalSecret;
-const livekitHost = process.env.livekitURL;
+const livekitHost = process.env.livekitLocalURL;
 
 const svc = new RoomServiceClient(livekitHost, API_KEY, API_SECRET);
 const egressClient = new EgressClient(livekitHost, API_KEY, API_SECRET);
