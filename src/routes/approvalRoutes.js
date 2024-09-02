@@ -77,4 +77,19 @@ router.get('/request-status', (req, res) => {
   }
 });
 
+// Delete a request
+router.delete('/remove-request', (req, res) => {
+  const { requestId } = req.body;
+  if (!requestId) {
+    return res.status(400).json({ message: 'Request ID is required' });
+  }
+
+  try {
+    ApprovalRequest.removeById(parseInt(requestId, 10));
+    res.json({ message: 'Request deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
