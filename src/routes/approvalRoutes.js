@@ -5,12 +5,22 @@ const router = express.Router();
 // Get all pending requests
 router.get('/pending-requests', (req, res) => {
   try {
-    const requests = ApprovalRequest.getAll().filter(req => req.status === 'pending');
+    const { roomName } = req.query;
+
+    if (!roomName) {
+      return res.status(400).json({ message: 'Room name is required' });
+    }
+
+    // Assuming ApprovalRequest.getAll() returns a list of requests with roomName included
+    const requests = ApprovalRequest.getAll()
+      .filter(req => req.status === 'pending' && req.roomName === roomName);
+
     res.json(requests);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
+
 
 // Create a new approval request
 router.post('/request-approval', (req, res) => {
