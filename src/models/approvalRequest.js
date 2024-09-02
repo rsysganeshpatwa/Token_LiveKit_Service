@@ -28,6 +28,9 @@ function getById(id) {
   return approvalRequests.find(req => req.id === id);
 }
 
+function clearByRoom(roomName) {
+  approvalRequests = approvalRequests.filter(req => req.roomName !== roomName);
+}
 export default  {
   getAll,
   create,
