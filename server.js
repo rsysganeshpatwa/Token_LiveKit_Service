@@ -25,6 +25,9 @@ const API_KEY = process.env.livekitLocalAPIKey;
 const API_SECRET = process.env.livekitLocalSecret;
 const livekitHost = process.env.livekitLocalURL;
 
+const WelcomeMap = new Map();
+
+
 const svc = new RoomServiceClient(livekitHost, API_KEY, API_SECRET);
 const egressClient = new EgressClient(livekitHost, API_KEY, API_SECRET);
 const __filename = fileURLToPath(import.meta.url);
@@ -60,15 +63,18 @@ const generateRandomString = (length) => {
   return result;
 };
 
-const createToken = async (participantName, roomName, role) => {
+const createToken = async (participantName, roomName, role, adminWelcomeMessage) => {
   const at = new AccessToken(API_KEY, API_SECRET, {
     identity: `${participantName}${generateRandomString(5)}`,
     ttl: 100000,
     name: participantName,
-
   });
 // Add metadata to the token
-at.metadata = JSON.stringify({ role: role });
+at.metadata = JSON.stringify({ role: role});
+console.log("admin", role);
+if(role=="Role.admin"){
+  WelcomeMap.set(roomName, adminWelcomeMessage);
+}
 
   console.log("participantName", participantName, "role", role);
 
@@ -91,21 +97,33 @@ at.metadata = JSON.stringify({ role: role });
 
 app.get("/rooms", async (req, res) => {
   const rooms = await svc.listRooms();
-  console.log("rooms", rooms);
-
+  // console.log("rooms", rooms);
   res.send(rooms);
 });
 
+app.post("/welcomeMessage", async (req, res) => {
+  const {roomName} = req.body;
+
+  if (!roomName) {
+    console.log("RoomName is not in URL so defalut -- Welcome to the room    ");
+    return res.send("");
+  } 
+  const message = WelcomeMap.get(roomName);
+  res.send(message);
+});
+
+
 app.post("/token", async (req, res) => {
-  const { identity, roomName, role } = req.body;
+  const { identity, roomName, role ,adminWelcomeMessage} = req.body;
 
   if (!identity || !roomName) {
     return res.status(400).send("Missing identity or roomName");
   }
 
-  let tokenGen = await createToken(identity, roomName, role);
+  let tokenGen = await createToken(identity, roomName, role, adminWelcomeMessage);
 
-  console.log("Token generated:", tokenGen);
+  // console.log("Token generated:", tokenGen);
+  console.log("Token Generated");
   res.send({ token: tokenGen });
 });
 
