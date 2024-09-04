@@ -7,6 +7,8 @@ import { dirname } from "path";
 import roomRoutes from "./src/routes/roomRoutes.js";
 import tokenRoutes from "./src/routes/livekitTokenRoutes.js";
 import approvalRoutes from "./src/routes/approvalRoutes.js";
+import recordingRoutes from "./src/routes/recordingRoutes.js";
+import { roomDataRoutes } from "./src/routes/roomDataRoutes.js";
 
 const app = express();
 app.use(cors());
@@ -29,7 +31,9 @@ if (!fs.existsSync(recordingsDir)) {
 app.use("/rooms", roomRoutes);
 app.use("/token", tokenRoutes);
 // Use the approval routes
-app.use('/room-permission', approvalRoutes);
+app.use("/room-permission", approvalRoutes);
+app.use("/recording", recordingRoutes);
+app.use("/room-data-manage", roomDataRoutes);
 
 app.get("/", (req, res) => {
   res.send("Live Kit Token API is running");
