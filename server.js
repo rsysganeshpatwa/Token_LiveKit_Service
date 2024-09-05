@@ -8,7 +8,7 @@ import roomRoutes from "./src/routes/roomRoutes.js";
 import tokenRoutes from "./src/routes/livekitTokenRoutes.js";
 import approvalRoutes from "./src/routes/approvalRoutes.js";
 import WelcomeMap from './globalMap.js';
-import { RoomServiceClient, EgressClient } from 'livekit-server-sdk'; // Adjust the import based on the actual package
+import { RoomServiceClient, EgressClient } from 'livekit-server-sdk'; 
 
 const app = express();
 app.use(cors());
@@ -20,9 +20,6 @@ const port = 3000;
 const API_KEY = process.env.livekitLocalAPIKey;
 const API_SECRET = process.env.livekitLocalSecret;
 const livekitHost = process.env.livekitLocalURL;
-
-// const WelcomeMap = new Map();
-
 
 const svc = new RoomServiceClient(livekitHost, API_KEY, API_SECRET);
 const egressClient = new EgressClient(livekitHost, API_KEY, API_SECRET);
@@ -59,39 +56,6 @@ const generateRandomString = (length) => {
   }
   return result;
 };
-
-// const createToken = async (participantName, roomName, role, adminWelcomeMessage) => {
-//   const at = new AccessToken(API_KEY, API_SECRET, {
-//     identity: `${participantName}${generateRandomString(5)}`,
-//     ttl: 100000,
-//     name: participantName,
-//   });
-// // Add metadata to the token
-// at.metadata = JSON.stringify({ role: role});
-// console.log("admin", role);
-// if(role=="Role.admin"){
-//   WelcomeMap.set(roomName, adminWelcomeMessage);
-//   console.log("admin welcome message added to the map");
-// }
-
-//   console.log("participantName", participantName, "role", role);
-
-//   // Set permissions based on the role
-//   let grantOptions = {
-//     roomJoin: true,
-//     room: roomName,
-//     canSubscribe: true,                  // Both can subscribe
-    
-//   };
-
-//   // Add role to custom claims (metadata)
-//  // at.metadata = { role }; // Add the role as a custom property
-  
-//   // Add grant to the token
-//   at.addGrant(grantOptions);
-
-//   return await at.toJwt();
-// };
 
 app.get("/rooms", async (req, res) => {
   const rooms = await svc.listRooms();

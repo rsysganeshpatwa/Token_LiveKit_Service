@@ -15,28 +15,6 @@ const generateRandomString = (length) => {
   return result;
 };
 
-// export const createToken = async (participantName, roomName, role) => {
-//   const at = new AccessToken(API_KEY, API_SECRET, {
-//     identity: `${participantName}${generateRandomString(5)}`,
-//     ttl: 100000,
-//     name: participantName,
-//   });
-
-//   at.metadata = JSON.stringify({ role });
-
-//   console.log("participantName", participantName, "role", role);
-
-//   const grantOptions = {
-//     roomJoin: true,
-//     room: roomName,
-//     canSubscribe: true,
-//   };
-
-//   at.addGrant(grantOptions);
-
-//   return await at.toJwt();
-// };
-
 export const createToken = async (participantName, roomName, role, adminWelcomeMessage) => {
   const at = new AccessToken(API_KEY, API_SECRET, {
     identity: `${participantName}${generateRandomString(5)}`,
@@ -57,14 +35,9 @@ if(role=="Role.admin"){
   let grantOptions = {
     roomJoin: true,
     room: roomName,
-    canSubscribe: true,                  // Both can subscribe
-    
+    canSubscribe: true,                
   };
 
-  // Add role to custom claims (metadata)
- // at.metadata = { role }; // Add the role as a custom property
-  
-  // Add grant to the token
   at.addGrant(grantOptions);
 
   return await at.toJwt();
