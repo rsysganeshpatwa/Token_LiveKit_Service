@@ -59,7 +59,6 @@ const generateRandomString = (length) => {
 
 app.get("/rooms", async (req, res) => {
   const rooms = await svc.listRooms();
-  // console.log("rooms", rooms);
   res.send(rooms);
 });
 
@@ -85,7 +84,6 @@ app.post("/token", async (req, res) => {
 
   let tokenGen = await createToken(identity, roomName, role, adminWelcomeMessage);
 
-  // console.log("Token generated:", tokenGen);
   console.log("Token Generated");
   res.send({ token: tokenGen });
 });
