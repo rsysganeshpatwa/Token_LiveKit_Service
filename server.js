@@ -34,6 +34,7 @@ app.use("/token", tokenRoutes);
 app.use("/room-permission", approvalRoutes);
 app.use("/recording", recordingRoutes);
 app.use("/room-data-manage", roomDataRoutes);
+app.use("/welcomeMessage",welcomeMessageRoutes);
 
 app.get("/", (req, res) => {
   res.send("Live Kit Token API is running");

@@ -1,5 +1,6 @@
 import { AccessToken } from "livekit-server-sdk";
 import { API_KEY, API_SECRET } from "../../config.js";
+import WelcomeMap from '../models/globalMap.js';
 
 const generateRandomString = (length) => {
   let result = "";
@@ -14,7 +15,7 @@ const generateRandomString = (length) => {
   return result;
 };
 
-export const createToken = async (participantName, roomName, role) => {
+export const createToken = async (participantName, roomName, role, adminWelcomeMessage) => {
   const at = new AccessToken(API_KEY, API_SECRET, {
     identity: `${participantName}${generateRandomString(5)}`,
     ttl: 100000,
@@ -22,16 +23,24 @@ export const createToken = async (participantName, roomName, role) => {
   });
 
   at.metadata = JSON.stringify({ role });
+// Add metadata to the token
+at.metadata = JSON.stringify({ role: role});
+// console.log("admin", role);
+if(role=="Role.admin"){
+  WelcomeMap.set(roomName, adminWelcomeMessage);
+  console.log("admin welcome message added to the map", adminWelcomeMessage);
+}
 
   console.log("participantName", participantName, "role", role);
 
-  const grantOptions = {
+
+  let grantOptions = {
     roomJoin: true,
     room: roomName,
     canSubscribe: true,
+    canSubscribe: true,                
   };
 
   at.addGrant(grantOptions);
-
   return await at.toJwt();
 };
