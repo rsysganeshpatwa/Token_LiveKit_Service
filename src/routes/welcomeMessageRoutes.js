@@ -1,9 +1,9 @@
 import express from "express";
-import {WelcomeMap} from "../models/globalMap.js";
+import WelcomeMap from "../models/globalMap.js";
 
 const router = express.Router();
 
-router.post("/welcomeMessage", async (req, res) => {
+router.post("/", async (req, res) => {
     const {roomName} = req.body;
     console.log("welcomeMessage API called",roomName);
   

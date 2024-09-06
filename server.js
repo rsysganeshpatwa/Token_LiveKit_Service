@@ -6,6 +6,7 @@ import { fileURLToPath } from "url";
 import { dirname } from "path";
 import roomRoutes from "./src/routes/roomRoutes.js";
 import tokenRoutes from "./src/routes/livekitTokenRoutes.js";
+import welcomeMessageRoutes from "./src/routes/welcomeMessageRoutes.js";
 import approvalRoutes from "./src/routes/approvalRoutes.js";
 import recordingRoutes from "./src/routes/recordingRoutes.js";
 import { roomDataRoutes } from "./src/routes/roomDataRoutes.js";
