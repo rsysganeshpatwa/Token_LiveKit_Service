@@ -10,6 +10,8 @@ import welcomeMessageRoutes from "./src/routes/welcomeMessageRoutes.js";
 import approvalRoutes from "./src/routes/approvalRoutes.js";
 import recordingRoutes from "./src/routes/recordingRoutes.js";
 import { roomDataRoutes } from "./src/routes/roomDataRoutes.js";
+import textractRoutes from "./src/routes/textractRoutes.js";
+
 
 const app = express();
 app.use(cors());
@@ -36,6 +38,8 @@ app.use("/room-permission", approvalRoutes);
 app.use("/recording", recordingRoutes);
 app.use("/room-data-manage", roomDataRoutes);
 app.use("/welcomeMessage",welcomeMessageRoutes);
+// Use the Textract routes
+app.use('/textract', textractRoutes);
 
 app.get("/", (req, res) => {
   res.send("Live Kit Token API is running");
