@@ -3,7 +3,7 @@ import { extractTextFromImage } from '../services/textractService.js';
 export const uploadImageAndExtractText = async (req, res) => {
     try {
         const chunks = [];
-        
+        console.log('Received image data');
         req.on('data', chunk => {
             chunks.push(chunk);
         });
