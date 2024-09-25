@@ -33,9 +33,9 @@ if (!fs.existsSync(recordingsDir)) {
 // Use routes
 // To handle binary data
 // Set limits for JSON and URL-encoded data
-app.use(express.json({ limit: '10mb' })); // Set as needed
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-app.use(express.raw({ type: 'application/octet-stream', limit: '10mb' }));
+// app.use(express.json({ limit: '10mb' })); // Set as needed
+// app.use(express.urlencoded({ limit: '10mb', extended: true }));
+// app.use(express.raw({ type: 'application/octet-stream', limit: '10mb' }));
 app.use("/rooms", roomRoutes);
 app.use("/token", tokenRoutes);
 // Use the approval routes
