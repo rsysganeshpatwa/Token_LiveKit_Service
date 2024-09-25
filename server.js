@@ -31,6 +31,8 @@ if (!fs.existsSync(recordingsDir)) {
 }
 
 // Use routes
+// To handle binary data
+app.use(express.raw({ type: 'application/octet-stream', limit: '10mb' }));
 app.use("/rooms", roomRoutes);
 app.use("/token", tokenRoutes);
 // Use the approval routes
