@@ -39,4 +39,3 @@ services:
       - "3000:3000"
     depends_on:
       - livekit-server
-    command: npm start
