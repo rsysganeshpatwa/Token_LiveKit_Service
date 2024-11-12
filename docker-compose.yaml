@@ -14,9 +14,7 @@ services:
     container_name: coturn
     volumes:
       - ./coturn.conf:/etc/turnserver.conf
-    ports:
-      - "3478:3478"
-      - "49152-65535:49152-65535/udp"
+    command: ["turnserver", "-c", "/etc/turnserver.conf"]
 
   app:
     build: .
