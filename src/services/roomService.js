@@ -5,6 +5,8 @@ import { roomDataStore} from "../routes/roomDataRoutes.js";
 const svc = new RoomServiceClient(LIVEKIT_HOST, API_KEY, API_SECRET);
 
 export const listRooms = async () => {
+
+  console.log("roomDataStore", svc);
   const list = await svc.listRooms()
   console.log("roomDataStore", roomDataStore);
 
