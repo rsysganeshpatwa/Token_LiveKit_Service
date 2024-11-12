@@ -1,27 +1,13 @@
-version: '3.8'
-
 services:
-  livekit-server:
-    image: livekit/livekit-server:latest
-    container_name: livekit-server
-    volumes:
-      - ./livekit-config.yaml:/config.yaml
-    command: --config /config.yaml
-    environment:
-      - LIVEKIT_API_KEY=108cc770f923cf669912dfed679c73c3
-      - LIVEKIT_API_SECRET=2c0c06d6975ee23e9ae32460ff0599b4
-    ports:
-      - "7880:7880"
-      - "7881:7881"
-      - "5000-5200:5000-5200/udp"
-    depends_on:
-      - redis
-
   redis:
-    image: redis  
-    container_name: redis
+    image: redis:latest
+    container_name: redis_service
     ports:
-      - "6379:6379"
+      - "0.0.0.0:6379:6379"  # Expose Redis on all network interfaces for external access
+    volumes:
+      - ./redis.conf:/etc/redis/redis.conf  # Mount local redis.conf
+      - redis_data:/data  # Persistent data storage
+    command: ["redis-server", "/etc/redis/redis.conf"]  # Use custom config
 
   coturn:
     image: coturn/coturn:latest
@@ -37,5 +23,7 @@ services:
     container_name: node_app
     ports:
       - "3000:3000"
-    depends_on:
-      - livekit-server
+
+volumes:
+  redis_data:
+    driver: local # Define the redis_data volume for persistent storage
