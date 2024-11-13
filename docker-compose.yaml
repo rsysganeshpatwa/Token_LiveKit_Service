@@ -22,7 +22,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-  - ~/.aws:/root/.aws
+      - ~/.aws:/root/.aws
 
 volumes:
   redis_data:
