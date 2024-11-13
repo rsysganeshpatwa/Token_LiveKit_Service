@@ -24,6 +24,6 @@ export const extractTextFromImage = async (imageBytes) => {
         return text;
     } catch (error) {
         console.error('Error extracting text:', error);
-        throw new Error('Failed to extract text');
+       
     }
 };
