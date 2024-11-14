@@ -10,6 +10,7 @@ router.get("/", async (req, res) => {
     res.send(rooms);
   } catch (error) {
 
+    console.log("Error fetching rooms",`${error.message}`);
     res.status(500).send({ error: "Error fetching rooms" });
   }
 });

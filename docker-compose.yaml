@@ -3,11 +3,11 @@ services:
     image: redis:latest
     container_name: redis_service
     ports:
-      - "0.0.0.0:6379:6379"  # Expose Redis on all network interfaces for external access
+      - "0.0.0.0:6379:6379" # Expose Redis on all network interfaces for external access
     volumes:
-      - ./redis.conf:/etc/redis/redis.conf  # Mount local redis.conf
-      - redis_data:/data  # Persistent data storage
-    command: ["redis-server", "/etc/redis/redis.conf"]  # Use custom config
+      - ./redis.conf:/etc/redis/redis.conf # Mount local redis.conf
+      - redis_data:/data # Persistent data storage
+    command: ["redis-server", "/etc/redis/redis.conf"] # Use custom config
 
   coturn:
     image: coturn/coturn:latest
@@ -21,8 +21,10 @@ services:
     container_name: node_app
     ports:
       - "3000:3000"
+    environment:
+      AWS_SDK_LOAD_CONFIG: "1"
     volumes:
-      - ~/.aws:/root/.aws
+      - /home/ubuntu/.aws:/root/.aws:ro # This ensures the .aws directory is mounted correctly
 
 volumes:
   redis_data:
