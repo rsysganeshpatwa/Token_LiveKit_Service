@@ -11,6 +11,7 @@ import approvalRoutes from "./src/routes/approvalRoutes.js";
 import recordingRoutes from "./src/routes/recordingRoutes.js";
 import { roomDataRoutes } from "./src/routes/roomDataRoutes.js";
 import textractRoutes from "./src/routes/textractRoutes.js";
+import awsInstanceRoutes from "./src/routes/awsInstanceRoutes.js";
 
 
 const app = express();
@@ -45,6 +46,8 @@ app.use("/room-data-manage", roomDataRoutes);
 app.use("/welcomeMessage",welcomeMessageRoutes);
 // Use the Textract routes
 app.use('/textract', textractRoutes);
+// Use the Instance creation and set to the target group of load balancer routes
+app.use('/awsInstance', awsInstanceRoutes);
 
 app.get("/", (req, res) => {
   res.send("Live Kit Token API is running");
