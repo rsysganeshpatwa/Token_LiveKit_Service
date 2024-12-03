@@ -26,7 +26,7 @@ services:
     environment:
       AWS_SDK_LOAD_CONFIG: "1"
     volumes:
-      - /home/ganesh/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
+      - /home/ubuntu/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
       #- C:\Users\Vikas\.aws:/root/.aws:ro# Ensure correct mounting of AWS credentials
       
   coturn:
