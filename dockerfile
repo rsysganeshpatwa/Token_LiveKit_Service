@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the app after syncing S3
-CMD sh -c "aws s3 sync  s3://embedded-poc-rsys /usr/src/app/public && npm start"
+CMD ["npm", "start"]

@@ -26,7 +26,7 @@ services:
     environment:
       AWS_SDK_LOAD_CONFIG: "1"
     volumes:
-      - /home/ubuntu/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
+      - /home/ganesh/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
       #- C:\Users\Vikas\.aws:/root/.aws:ro# Ensure correct mounting of AWS credentials
       
   coturn:
@@ -44,7 +44,6 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro # Best to use read-only mode
-      - /:/usr/src/app/public:ro
     depends_on:
       - livekit-server
   
