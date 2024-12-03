@@ -44,6 +44,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro # Best to use read-only mode
+      - /:/usr/src/app/public:ro
     depends_on:
       - livekit-server
   
