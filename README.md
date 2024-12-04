@@ -123,9 +123,21 @@ Backend  Repo URL:  https://github.com/rsysganeshpatwa/Token_LiveKit_Service
         sudo docker-compose up --build -d
 
         echo "===== Script Completed: $(date) ====="
-    4. Only for local setup need to change volumes section app of docker-compose.yaml file
-    	/home/<username>/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
-  
+    4. Only for local setup 
+        i. need to change volumes section of app of docker-compose.yaml file
+    	    /home/<username>/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
+        ii. need to change volumes section of nginx of docker-compose.yaml file
+            - /home/dell/Desktop/s3-sync:/usr/src/app/public:ro # Serve static files
+        iii. need to edit nginx.conf file
+            location / {
+                    root /usr/src/app/public;
+                    index index.html;
+                    # Prevent redirection cycle; serve index.html only if the requested file does not exist
+                    try_files $uri /index.html;
+                }
+        iv. enter below command for setting front end application to your local system
+            aws s3 sync s3://embedded-poc-rsys/ /home/dell/Desktop/s3-sync
+            
     5. Make the script executable:
         chmod +x deploy_livekit.sh
     6. Run the script:
