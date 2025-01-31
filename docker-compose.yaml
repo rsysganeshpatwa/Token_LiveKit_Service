@@ -12,11 +12,11 @@ services:
       - LIVEKIT_API_KEY=108cc770f923cf669912dfed679c73c3
       - LIVEKIT_API_SECRET=2c0c06d6975ee23e9ae32460ff0599b4
 
-  # redis:
-  #   image: redis
-  #   container_name: redis
-  #   ports:
-  #     - "6379:6379"
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
 
   app:
     build: .
