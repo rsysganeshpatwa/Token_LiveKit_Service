@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { Room } from './src/models/roomModel.js';
 
 // const mongoURI = 'mongodb+srv://VideoConfrecing:Z45MHxYS7VKjWRpa@videoconfrencing.bmdz7.mongodb.net/?retryWrites=true&w=majority&appName=VideoConfrencing';
-const mongoURI = 'mongodb://ec2-51-20-132-20.eu-north-1.compute.amazonaws.com/:27017/';
+const mongoURI = 'mongodb://ec2-51-20-132-20.eu-north-1.compute.amazonaws.com/:27017/test';
 
 // MongoDB Connection
 mongoose.connect(mongoURI, {
