@@ -33,7 +33,7 @@ export const saveRoomData = async (data) => {
     return room;
   } catch (err) {
     console.error('❌ Error saving or updating room data:', err);
-    throw err; // Re-throw for handling at a higher level
+  //  throw err; // Re-throw for handling at a higher level
   }
 };
 
@@ -51,7 +51,7 @@ export const getRoomData = async (roomID,roomName) => {
     return room.participants;
   } catch (error) {
     console.error("❌ Error fetching room data:", error);
-    throw error;
+  //  throw error;
   }
 };
 
@@ -75,6 +75,6 @@ export const removeParticipant = async (roomID, participantID) => {
     return updatedRoom;
   } catch (error) {
     console.error("❌ Error removing participant:", error);
-    throw error;
+  //  throw error;
   }
 };
