@@ -36,16 +36,16 @@ services:
   #     - ./coturn.conf:/etc/turnserver.conf
   #   command: ["turnserver", "-c", "/etc/turnserver.conf"]
 
-  # nginx:
-  #   image: nginx:latest
-  #   container_name: nginx
-  #   ports:
-  #     - "80:80"
-  #     - "443:443"
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro # Best to use read-only mode
-  #   depends_on:
-  #     - livekit-server
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Best to use read-only mode
+    depends_on:
+      - livekit-server
   
 networks:
   default:
