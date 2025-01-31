@@ -12,11 +12,11 @@ services:
       - LIVEKIT_API_KEY=108cc770f923cf669912dfed679c73c3
       - LIVEKIT_API_SECRET=2c0c06d6975ee23e9ae32460ff0599b4
 
-  redis:
-    image: redis
-    container_name: redis
-    ports:
-      - "6379:6379"
+  # redis:
+  #   image: redis
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
 
   app:
     build: .
@@ -29,23 +29,23 @@ services:
       - /home/ubuntu/.aws:/root/.aws:ro # Ensure correct mounting of AWS credentials
       #- C:\Users\Vikas\.aws:/root/.aws:ro# Ensure correct mounting of AWS credentials
       
-  coturn:
-    image: coturn/coturn:latest
-    container_name: coturn
-    volumes:
-      - ./coturn.conf:/etc/turnserver.conf
-    command: ["turnserver", "-c", "/etc/turnserver.conf"]
+  # coturn:
+  #   image: coturn/coturn:latest
+  #   container_name: coturn
+  #   volumes:
+  #     - ./coturn.conf:/etc/turnserver.conf
+  #   command: ["turnserver", "-c", "/etc/turnserver.conf"]
 
-  nginx:
-    image: nginx:latest
-    container_name: nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro # Best to use read-only mode
-    depends_on:
-      - livekit-server
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro # Best to use read-only mode
+  #   depends_on:
+  #     - livekit-server
   
 networks:
   default:
