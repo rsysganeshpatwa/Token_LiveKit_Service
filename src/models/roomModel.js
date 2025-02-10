@@ -25,3 +25,22 @@ const Room = mongoose.model('Room', roomSchema);
 
 // Export the Room model using ES Modules syntax
 export { Room };
+
+const counterSchema = new mongoose.Schema({
+    name: String,
+    seq: { type: Number, default: 0 }
+});
+
+export const Counter = mongoose.model("Counter", counterSchema);
+
+// Define the schema for approval requests
+const approvalRequestSchema = new mongoose.Schema({
+  id: Number, 
+  participantName: { type: String, required: true },
+//   roomID: { type: String, required: true },
+  roomName: { type: String, required: true },
+  status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
+});
+// Create the ApprovalRequest model
+const ApprovalRequest = mongoose.model('ApprovalRequest', approvalRequestSchema);
+export { ApprovalRequest };

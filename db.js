@@ -1,9 +1,8 @@
 import mongoose from 'mongoose';
-import { Room } from './src/models/roomModel.js';
+import { Room, ApprovalRequest } from './src/models/roomModel.js';
 
-// const mongoURI = 'mongodb+srv://VideoConfrecing:Z45MHxYS7VKjWRpa@videoconfrencing.bmdz7.mongodb.net/?retryWrites=true&w=majority&appName=VideoConfrencing';
-const mongoURI = 'mongodb://ec2-51-20-132-20.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
-
+// const mongoURI = 'mongodb://ec2-51-20-132-20.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
+const mongoURI = 'mongodb://localhost:27017/';
 // MongoDB Connection
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
@@ -37,6 +36,86 @@ export const saveRoomData = async (data) => {
   }
 };
 
+export const saveApprovalRequest = async (request) => {
+  const approvalRequest = new ApprovalRequest(request);
+  await approvalRequest.save();
+  return approvalRequest;
+};
+
+export const updateApprovalRequest = async (id, status) => {
+  try {
+    // ✅ Find and update the request in MongoDB
+    const request = await ApprovalRequest.findOneAndUpdate(
+      { id: id },      // Find request by ID
+      { status: status }, // Update status
+      { new: true }      // Return the updated document
+    );
+  
+    if (!request) {
+      console.log('❌ Request not found');
+      return null;
+    }
+    console.log(`✅ Updated Request:`, request);
+    const formattedRequests = {
+      id: request.id, // Assign sequential IDs starting from 4
+      participantName: request.participantName,
+      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      status: request.status
+    };
+    return formattedRequests;
+    } 
+  catch (error) {
+    console.error('❌ Error updating request:', error);
+    return null;
+  }
+}
+
+export const getAllApprovalRequestById = async (id) => {
+  try {
+    const request = await ApprovalRequest.findOne({ id: id }); // ✅ Correct query
+    const formattedRequests = {
+      id: request.id, // Assign sequential IDs starting from 4
+      participantName: request.participantName,
+      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      status: request.status
+    };
+    return formattedRequests; // Return the data
+  } catch (error) {
+    console.error('Error fetching approval requests:', error);
+  }
+};
+
+export const getApprovalRequests = async () => {
+  try {
+    const requests = await ApprovalRequest.find(); // ✅ Ensure `await` is used
+    const formattedRequests = requests.map((request) => ({
+      id: request.id, // Assign sequential IDs starting from 4
+      participantName: request.participantName,
+      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      status: request.status
+    }));
+    return formattedRequests; // Return the data
+  } catch (error) {
+    console.error('Error fetching approval requests:', error);
+  }
+};
+
+
+export const getAllRequest = async (roomName) => {
+  try {
+    const requests = await ApprovalRequest.find({ status: 'pending', roomName: roomName }); // ✅ Ensure `await` is used
+    const formattedRequests = requests.map((request) => ({
+      id: request.id, // Assign sequential IDs starting from 4
+      participantName: request.participantName,
+      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      status: request.status
+    }));
+    return formattedRequests; // Return the data
+  } catch (error) {
+    console.error('Error fetching approval requests:', error);
+  }
+};
+
 // ==========================
 // 📜 Get Room Participant List
 // ==========================
@@ -51,7 +130,6 @@ export const getRoomData = async (roomID,roomName) => {
     return room.participants;
   } catch (error) {
     console.error("❌ Error fetching room data:", error);
-  //  throw error;
   }
 };
 
@@ -78,3 +156,20 @@ export const removeParticipant = async (roomID, participantID) => {
   //  throw error;
   }
 };
+
+
+export const removeParticipantRequest = async (ID) => {
+  console.log('🔍 Trying to delete request with ID:', ID);
+  try {
+    const result = await ApprovalRequest.deleteOne({ id: ID });
+    console.log(result,"result");
+    if (result.deletedCount > 0) {
+      console.log('✅ Request deleted successfully');
+    } else {
+      console.log('⚠ No request found with the given ID');
+    }
+  } catch (error) {
+    console.error("❌ Error removing participant:", error);
+  }
+};
+

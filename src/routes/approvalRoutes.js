@@ -1,20 +1,17 @@
 import express from 'express';
 import ApprovalRequest from '../models/approvalRequest.js';
+import { getAllRequest } from '../../db.js';
 
 const router = express.Router();
 // Get all pending requests
-router.get('/pending-requests', (req, res) => {
+router.get('/pending-requests',  async (req, res) => {
   try {
     const { roomName } = req.query;
 
     if (!roomName) {
       return res.status(400).json({ message: 'Room name is required' });
     }
-
-    // Assuming ApprovalRequest.getAll() returns a list of requests with roomName included
-    const requests = ApprovalRequest.getAll()
-      .filter(req => req.status === 'pending' && req.roomName === roomName);
-
+    const requests = await getAllRequest(roomName)
     res.json(requests);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -23,14 +20,14 @@ router.get('/pending-requests', (req, res) => {
 
 
 // Create a new approval request
-router.post('/request-approval', (req, res) => {
+router.post('/request-approval', async (req, res) => {
   const { participantName, roomName } = req.body;
   if (!participantName || !roomName) {
     return res.status(400).json({ message: 'Participant name and room name are required' });
   }
 
   try {
-    const request = ApprovalRequest.create(participantName, roomName);
+    const request = await ApprovalRequest.create(participantName, roomName);
     res.status(201).json(request);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -38,7 +35,7 @@ router.post('/request-approval', (req, res) => {
 });
 
 // Approve or reject a request
-router.post('/approve-request', (req, res) => {
+router.post('/approve-request', async (req, res) => {
   const { requestId, approve } = req.body;
   if (!requestId || approve === undefined) {
     return res.status(400).json({ message: 'Request ID and approval status are required' });
@@ -46,8 +43,7 @@ router.post('/approve-request', (req, res) => {
 
   try {
     const status = approve ? 'approved' : 'rejected';
-    const request = ApprovalRequest.update(requestId, status);
-
+    const request = await ApprovalRequest.update(requestId, status);
     if (!request) {
       return res.status(404).json({ message: 'Request not found' });
     }
@@ -59,14 +55,14 @@ router.post('/approve-request', (req, res) => {
 });
 
 // Get request status
-router.get('/request-status', (req, res) => {
+router.get('/request-status', async (req, res) => {
   const { requestId } = req.query;
   if (!requestId) {
     return res.status(400).json({ message: 'Request ID is required' });
   }
 
   try {
-    const request = ApprovalRequest.getById(parseInt(requestId, 10));
+    const request = await ApprovalRequest.getById(requestId);
     if (!request) {
       return res.status(404).json({ message: 'Request not found' });
     }
@@ -78,14 +74,14 @@ router.get('/request-status', (req, res) => {
 });
 
 // Delete a request
-router.delete('/remove-request', (req, res) => {
+router.delete('/remove-request', async (req, res) => {
   const { requestId } = req.body;
   if (!requestId) {
     return res.status(400).json({ message: 'Request ID is required' });
   }
 
   try {
-    ApprovalRequest.removeById(parseInt(requestId, 10));
+    await ApprovalRequest.removeById(requestId);
     res.json({ message: 'Request deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });

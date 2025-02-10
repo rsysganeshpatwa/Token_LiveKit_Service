@@ -1,10 +1,6 @@
 // models/approvalRequest.js
-let approvalRequests = [];
+import { updateApprovalRequest, saveApprovalRequest, removeParticipantRequest, getAllApprovalRequestById } from '../../db.js';
 let nextId = 1;
-
-function getAll() {
-  return approvalRequests;
-}
 
 function create(participantName, roomName) {
   const request = {
@@ -13,26 +9,24 @@ function create(participantName, roomName) {
     roomName,
     status: 'pending',
   };
-  approvalRequests.push(request);
+  saveApprovalRequest(request);
   return request;
 }
 
-function update(id, status) {
-  const index = approvalRequests.findIndex(req => req.id === id);
-  if (index === -1) return null;
-  approvalRequests[index].status = status;
-  return approvalRequests[index];
+async function update(id, status) {
+  const request = await updateApprovalRequest(id, status)
+  return request;
 }
 
-function getById(id) {
-  return approvalRequests.find(req => req.id === id);
+async function getById(id) {
+  const request = await getAllApprovalRequestById(id);
+  return request;
 }
 
-function removeById(id) {
-  approvalRequests = approvalRequests.filter(req => req.id !== id);
+async function removeById(id) {
+  await removeParticipantRequest(id)
 }
 export default  {
-  getAll,
   create,
   update,
   getById,
