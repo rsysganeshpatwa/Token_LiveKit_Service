@@ -121,7 +121,7 @@ export const getAllRequest = async (roomName) => {
 // ==========================
 export const getRoomData = async (roomID,roomName) => {
   try {
-    const room = await Room.findOne({ roomID }).lean(); // `lean()` improves performance for read operations
+    const room = await Room.findOne({ roomID: roomID }).lean(); // `lean()` improves performance for read operations
     if (!room) {
       console.log("⚠️ Room not found!");
       return null;
@@ -133,27 +133,39 @@ export const getRoomData = async (roomID,roomName) => {
   }
 };
 
-// ==========================
-// ❌ Remove Participant from Room
-// ==========================
-export const removeParticipant = async (roomID, participantID) => {
+export const deleteRoomData = async (roomID, roomName, participantId) => {
+  console.log(roomID,"🛠️ Processing deleteRoomData...",roomName,participantId);
   try {
-    const updatedRoom = await Room.findOneAndUpdate(
-      { roomID }, // Find room by roomID
-      { $pull: { participants: { _id: new mongoose.Types.ObjectId(participantID) } } }, // Remove participant by ID
-      { new: true }
-    );
-
-    if (!updatedRoom) {
+    // Find the room with available parameters
+    const query = {};
+    if (roomID) query.roomID = roomID;
+    if (roomName) query.roomName = roomName;
+    const room = await Room.findOne({ roomID: roomID });
+    // If room is not found by roomID, search by roomName
+    if (!room) {
+      console.log("Room not found by roomID, searching by roomName...");
+      room = await Room.findOne({ name: roomName });
+    }
+    // If room is still not found, return error
+    if (!room) {
       console.log("⚠️ Room not found!");
       return null;
     }
-
-    console.log(`✅ Participant ${participantID} removed from Room ${roomID}`);
-    return updatedRoom;
+    // Remove the participant from the room
+    room.participants = room.participants.filter((p) => p.identity !== participantId);
+    if (room.participants.length === 0) {
+      // Delete the room if no participants are left
+      await Room.deleteOne({ roomID: room.roomID });
+      console.log(`🗑️ Room ${room.roomID} deleted as no participants left.`);
+      return "Room deleted";
+    }
+    else {
+      // Save the updated room
+      await room.save();
+      return "Participant removed";
+    }
   } catch (error) {
     console.error("❌ Error removing participant:", error);
-  //  throw error;
   }
 };
 

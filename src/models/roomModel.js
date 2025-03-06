@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 
 // Define participant schema
 const participantSchema = new mongoose.Schema({
-  identity: { type: String, required: true },
+  identity: { type: String, required: true, primary: true, unique: true},
   isAudioEnable: { type: Boolean, required: true },
   isVideoEnable: { type: Boolean, required: true },
   isHandRaised: { type: Boolean, required: true },
@@ -16,7 +16,7 @@ const participantSchema = new mongoose.Schema({
 // Define room schema
 const roomSchema = new mongoose.Schema({
   roomID: { type: String, required: true },
-  name: { type: String, required: true },  // Add this field for room name
+  name: { type: String, required: true},  // Add this field for room name
   participants: [participantSchema]
 });
 

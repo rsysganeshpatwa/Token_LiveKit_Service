@@ -1,7 +1,7 @@
 // routes/dataRoutes.js
 import express from 'express';
 const router = express.Router();
-import { getRoomData, saveRoomData }  from '../../db.js'; // Adjust the path as needed
+import { getRoomData, saveRoomData, deleteRoomData }  from '../../db.js'; // Adjust the path as needed
 // export { getRoomData, saveRoomData, removeParticipant };
 
 // In-memory store for room data
@@ -34,6 +34,19 @@ router.get('/latest-data/:roomId/', async (req, res) => {
   const roomId = req.params.roomId;
   const roomName = req.query.roomName;
   const data = await getRoomData(roomId,roomName);
+  if (data === undefined) {
+    return res.status(404).json({ error: 'No data available for this room' });
+  }
+  res.status(200).json({ data });
+});
+
+// Endpoint to get the latest data for a room
+router.delete('/remove-participant', async (req, res) => {
+  // console.log(req,"req");
+  const roomId = req.query.roomId;
+  const roomName = req.query.roomName;
+  const participantName = req.query.participantId;
+  const data = await deleteRoomData(roomId,roomName,participantName);
   if (data === undefined) {
     return res.status(404).json({ error: 'No data available for this room' });
   }
