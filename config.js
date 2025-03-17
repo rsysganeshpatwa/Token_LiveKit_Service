@@ -5,3 +5,4 @@ dotenv.config();
 export const API_KEY = process.env.livekitLocalAPIKey;
 export const API_SECRET = process.env.livekitLocalSecret;
 export const LIVEKIT_HOST = process.env.livekitLocalURL;
+export const LIVEKIT_HOST_INGRESS = process.env.livekitNodeURL;

@@ -15,10 +15,16 @@ const participantSchema = new mongoose.Schema({
 
 // Define room schema
 const roomSchema = new mongoose.Schema({
-  roomID: { type: String, required: true },
+  //roomID: { type: String, required: true },
+  roomID: { type: String },
+  //roomID: { type: String, default: null },
   name: { type: String, required: true},  // Add this field for room name
+  //name: { type: String, required: true, unique: true },  // Add this field for room name
   participants: [participantSchema]
 });
+
+// Create a compound unique index (ensures unique participants within the same room)
+//roomSchema.index({ "roomID": 1, "participants.identity": 1 }, { unique: true });
 
 // Create the Room model
 const Room = mongoose.model('Room', roomSchema);

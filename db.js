@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 import { Room, ApprovalRequest } from './src/models/roomModel.js';
 
 // const mongoURI = 'mongodb://ec2-51-20-132-20.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
-const mongoURI = 'mongodb://localhost:27017/';
-// MongoDB Connection
+//const mongoURI = 'mongodb://localhost:27017/';
+const mongoURI = 'mongodb://127.0.0.1:27017/';
+// MongoDB Connections
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -17,11 +18,13 @@ mongoose.connect(mongoURI, {
 export const saveRoomData = async (data) => {
   try {
     const room = await Room.findOneAndUpdate(
-      { roomID: data.roomID }, // Find room by roomID
+      //{ roomID: data.roomID }, // Find room by roomID
+      { name: data.roomName.roomName }, // Find room by roomName
       { 
-        $set: { 
+        $set: {
           name: data.roomName.roomName, // Ensure you pass the value of roomName as a string
-          participants: data.participants 
+          participants: data.participants,
+          roomID: data.roomID // Add roomID to the query 
         }
       },
       { upsert: true, new: true } // Create if not exists, return updated
@@ -33,6 +36,40 @@ export const saveRoomData = async (data) => {
   } catch (err) {
     console.error('❌ Error saving or updating room data:', err);
   //  throw err; // Re-throw for handling at a higher level
+  }
+};
+
+export const saveRoomDataStreamer = async (data) => {
+  try {
+    let room = await Room.findOne({ name: data.roomName.roomName }).lean();
+    if (room) {
+      // Update participants in the database using $push for a single participant
+      room = await Room.findOneAndUpdate(
+        { name: data.roomName.roomName },
+        //{ $push: { participants: data.participants } }, // Push single participant object
+        { $addToSet: { participants: { $each: data.participants } } }, // Add multiple participants correctly
+        { new: true } // Return updated room
+      );
+      room.participants.push(data.participants);
+    }else{
+      console.log("⚠️ Room not found! Creating a new one...");
+      const room = await Room.findOneAndUpdate(
+        { name: data.roomName.roomName }, // Find room by roomName
+        { 
+          $set: {
+            roomID: null, // Add roomID to the query 
+            name: data.roomName.roomName, // Ensure you pass the value of roomName as a string
+            participants: data.participants
+          }
+        },
+        { upsert: true, new: true } // Create if not exists, return updated
+      );
+    }
+
+    console.log('✅ Room data saved or updated successfully!',room);
+    return room;
+  } catch (err) {
+    console.error('❌ Error saving or updating room data:', err);
   }
 };
 
@@ -121,8 +158,9 @@ export const getAllRequest = async (roomName) => {
 // ==========================
 export const getRoomData = async (roomID,roomName) => {
   try {
-    const room = await Room.findOne({ roomID: roomID }).lean(); // `lean()` improves performance for read operations
-    if (!room) {
+    //const room = await Room.findOne({ roomID: roomID }).lean(); // `lean()` improves performance for read operations
+    const room = await Room.findOne({ name: roomName }).lean(); // `lean()` improves performance for read operations
+        if (!room) {
       console.log("⚠️ Room not found!");
       return null;
     }
