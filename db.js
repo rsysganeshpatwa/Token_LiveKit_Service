@@ -1,75 +1,57 @@
 import mongoose from 'mongoose';
-import { Room, ApprovalRequest } from './src/models/roomModel.js';
+import { Room, ApprovalRequest, Participant } from './src/models/roomModel.js';
 
-// const mongoURI = 'mongodb://ec2-51-20-132-20.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
-//const mongoURI = 'mongodb://localhost:27017/';
-const mongoURI = 'mongodb://127.0.0.1:27017/';
-// MongoDB Connections
+//const mongoURI = 'mongodb://ec2-13-61-180-139.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
+ const mongoURI = 'mongodb://localhost:27017/videoconfrencing';
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 45000,
+  maxPoolSize: 50,
+  minPoolSize: 5,
+  waitQueueTimeoutMS: 10000,
 })
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// ==========================
-// 🏠 Save or Update Room Data
-// ==========================
-export const saveRoomData = async (data) => {
+export const upsertParticipants = async (participants, roomObjectId) => {
   try {
-    const room = await Room.findOneAndUpdate(
-      //{ roomID: data.roomID }, // Find room by roomID
-      { name: data.roomName.roomName }, // Find room by roomName
-      { 
-        $set: {
-          name: data.roomName.roomName, // Ensure you pass the value of roomName as a string
-          participants: data.participants,
-          roomID: data.roomID // Add roomID to the query 
-        }
-      },
-      { upsert: true, new: true } // Create if not exists, return updated
-    );
+    const ops = participants.map((p) => ({
+      updateOne: {
+        filter: { identity: p.identity, roomID: roomObjectId },
+        update: { $set: { ...p, roomID: roomObjectId } },
+        upsert: true
+      }
+    }));
 
-
-    console.log('✅ Room data saved or updated successfully!',room);
-    return room;
+    const result = await Participant.bulkWrite(ops);
+    console.log('✅ Participant upserts complete:', result);
+    return result;
   } catch (err) {
-    console.error('❌ Error saving or updating room data:', err);
-  //  throw err; // Re-throw for handling at a higher level
+    console.error('❌ Error in upsertParticipants:', err.message || err);
+    return null;
   }
 };
 
-export const saveRoomDataStreamer = async (data) => {
+export const saveRoomData = async (data) => {
   try {
-    let room = await Room.findOne({ name: data.roomName.roomName }).lean();
-    if (room) {
-      // Update participants in the database using $push for a single participant
-      room = await Room.findOneAndUpdate(
-        { name: data.roomName.roomName },
-        //{ $push: { participants: data.participants } }, // Push single participant object
-        { $addToSet: { participants: { $each: data.participants } } }, // Add multiple participants correctly
-        { new: true } // Return updated room
-      );
-      room.participants.push(data.participants);
-    }else{
-      console.log("⚠️ Room not found! Creating a new one...");
-      const room = await Room.findOneAndUpdate(
-        { name: data.roomName.roomName }, // Find room by roomName
-        { 
-          $set: {
-            roomID: null, // Add roomID to the query 
-            name: data.roomName.roomName, // Ensure you pass the value of roomName as a string
-            participants: data.participants
-          }
-        },
-        { upsert: true, new: true } // Create if not exists, return updated
-      );
-    }
+    const room = await Room.findOneAndUpdate(
+      { name: data.roomName.roomName },
+      { $set: { roomID: data.roomID, name: data.roomName.roomName } },
+      { upsert: true, new: true }
+    );
 
-    console.log('✅ Room data saved or updated successfully!',room);
-    return room;
+    const result = await upsertParticipants(data.participants, room._id);
+    console.log('✅ Room data saved:', result);
+    if (!result) {
+      console.log('⚠️ No participants to save');
+      return null;
+    }
+    return { room, result };
   } catch (err) {
-    console.error('❌ Error saving or updating room data:', err);
+    console.error('❌ Error in saveRoomData:', err.message || err);
+    return null;
   }
 };
 
@@ -81,42 +63,38 @@ export const saveApprovalRequest = async (request) => {
 
 export const updateApprovalRequest = async (id, status) => {
   try {
-    // ✅ Find and update the request in MongoDB
     const request = await ApprovalRequest.findOneAndUpdate(
-      { id: id },      // Find request by ID
-      { status: status }, // Update status
-      { new: true }      // Return the updated document
+      { id: id },
+      { status: status },
+      { new: true }
     );
-  
+
     if (!request) {
       console.log('❌ Request not found');
       return null;
     }
     console.log(`✅ Updated Request:`, request);
-    const formattedRequests = {
-      id: request.id, // Assign sequential IDs starting from 4
+    return {
+      id: request.id,
       participantName: request.participantName,
-      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      roomName: request.roomName,
       status: request.status
     };
-    return formattedRequests;
-    } 
-  catch (error) {
+  } catch (error) {
     console.error('❌ Error updating request:', error);
     return null;
   }
-}
+};
 
 export const getAllApprovalRequestById = async (id) => {
   try {
-    const request = await ApprovalRequest.findOne({ id: id }); // ✅ Correct query
-    const formattedRequests = {
-      id: request.id, // Assign sequential IDs starting from 4
+    const request = await ApprovalRequest.findOne({ id: id });
+    return {
+      id: request.id,
       participantName: request.participantName,
-      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      roomName: request.roomName,
       status: request.status
     };
-    return formattedRequests; // Return the data
   } catch (error) {
     console.error('Error fetching approval requests:', error);
   }
@@ -124,95 +102,74 @@ export const getAllApprovalRequestById = async (id) => {
 
 export const getApprovalRequests = async () => {
   try {
-    const requests = await ApprovalRequest.find(); // ✅ Ensure `await` is used
-    const formattedRequests = requests.map((request) => ({
-      id: request.id, // Assign sequential IDs starting from 4
+    const requests = await ApprovalRequest.find();
+    return requests.map((request) => ({
+      id: request.id,
       participantName: request.participantName,
-      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      roomName: request.roomName,
       status: request.status
     }));
-    return formattedRequests; // Return the data
   } catch (error) {
     console.error('Error fetching approval requests:', error);
   }
 };
-
 
 export const getAllRequest = async (roomName) => {
   try {
-    const requests = await ApprovalRequest.find({ status: 'pending', roomName: roomName }); // ✅ Ensure `await` is used
-    const formattedRequests = requests.map((request) => ({
-      id: request.id, // Assign sequential IDs starting from 4
+    const requests = await ApprovalRequest.find({ status: 'pending', roomName });
+    return requests.map((request) => ({
+      id: request.id,
       participantName: request.participantName,
-      roomName: request.roomName, // Assuming roomName is stored in request.roomID
+      roomName: request.roomName,
       status: request.status
     }));
-    return formattedRequests; // Return the data
   } catch (error) {
     console.error('Error fetching approval requests:', error);
   }
 };
 
-// ==========================
-// 📜 Get Room Participant List
-// ==========================
-export const getRoomData = async (roomID,roomName) => {
+export const getRoomData = async (roomID, roomName) => {
   try {
-    //const room = await Room.findOne({ roomID: roomID }).lean(); // `lean()` improves performance for read operations
-    const room = await Room.findOne({ name: roomName }).lean(); // `lean()` improves performance for read operations
-        if (!room) {
+    const room = await Room.findOne({ name: roomName }).lean();
+    if (!room) {
       console.log("⚠️ Room not found!");
       return null;
     }
-    console.log("👥 Participants List:", room.participants);
-    return room.participants;
+    const participants = await Participant.find({ roomID: room._id });
+    return participants;
   } catch (error) {
     console.error("❌ Error fetching room data:", error);
   }
 };
 
 export const deleteRoomData = async (roomID, roomName, participantId) => {
-  console.log(roomID,"🛠️ Processing deleteRoomData...",roomName,participantId);
   try {
-    // Find the room with available parameters
     const query = {};
     if (roomID) query.roomID = roomID;
-    if (roomName) query.roomName = roomName;
-    const room = await Room.findOne({ roomID: roomID });
-    // If room is not found by roomID, search by roomName
-    if (!room) {
-      console.log("Room not found by roomID, searching by roomName...");
-      room = await Room.findOne({ name: roomName });
-    }
-    // If room is still not found, return error
+    if (roomName) query.name = roomName;
+
+    let room = await Room.findOne(query);
     if (!room) {
       console.log("⚠️ Room not found!");
       return null;
     }
-    // Remove the participant from the room
-    room.participants = room.participants.filter((p) => p.identity !== participantId);
-    if (room.participants.length === 0) {
-      // Delete the room if no participants are left
-      await Room.deleteOne({ roomID: room.roomID });
+
+    await Participant.deleteOne({ identity: participantId, roomID: room._id });
+    const remaining = await Participant.find({ roomID: room._id });
+    if (remaining.length === 0) {
+      await Room.deleteOne({ _id: room._id });
       console.log(`🗑️ Room ${room.roomID} deleted as no participants left.`);
       return "Room deleted";
     }
-    else {
-      // Save the updated room
-      await room.save();
-      return "Participant removed";
-    }
+    return "Participant removed";
   } catch (error) {
     console.error("❌ Error removing participant:", error);
   }
 };
 
-
 export const removeParticipantRequest = async (ID) => {
-  console.log('🔍 Trying to delete request with ID:', ID);
   try {
     const result = await ApprovalRequest.deleteOne({ id: ID });
-    console.log(result,"result");
     if (result.deletedCount > 0) {
       console.log('✅ Request deleted successfully');
     } else {
@@ -222,4 +179,3 @@ export const removeParticipantRequest = async (ID) => {
     console.error("❌ Error removing participant:", error);
   }
 };
-

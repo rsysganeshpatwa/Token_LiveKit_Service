@@ -2,7 +2,7 @@ import express from 'express';
 import { IngressClient, IngressInput } from 'livekit-server-sdk';
 import Ingress from '../models/Ingress.js';
 import { API_KEY, API_SECRET, LIVEKIT_HOST_INGRESS } from "../../config.js";
-import { saveRoomDataStreamer } from '../../db.js';
+import { saveRoomData } from '../../db.js';
 import { deleteRoomData } from '../../db.js';
 
 const router = express.Router();
@@ -98,7 +98,7 @@ router.post('/post-stream', async (req, res) => {
             ],
         };
 
-        saveRoomDataStreamer(responseData); // Save room data to MongoDB
+        saveRoomData(responseData); // Save room data to MongoDB
         return res.status(200).json(responseData);
     } catch (error) {
         console.error('Error creating ingress:', error);

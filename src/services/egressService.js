@@ -1,51 +1,74 @@
-// egressService.js
-import {
-  EgressClient,
-  EncodedFileOutput,
-  EncodedFileType,
-} from "livekit-server-sdk";
-import { API_KEY, API_SECRET, LIVEKIT_HOST } from "../../config.js";
-// Adjust path as necessary
+import { EgressClient, StreamOutput, StreamProtocol } from "livekit-server-sdk";
+import { API_KEY, API_SECRET, LIVEKIT_HOST_INGRESS } from "../../config.js";
 
-// Initialize the Egress Client
-const egressClient = new  EgressClient(LIVEKIT_HOST, API_KEY, API_SECRET);
-
-// Configure file output to local storage
-const fileOutput = new EncodedFileOutput({
-  fileType: EncodedFileType.MP4,
-  filepath: "livekit-demo/room-composite-test.mp4",
-});
-
-// Function to start recording
-const startRecording = async (roomName) => {
-  try {
-    const response = await egressClient.startRoomCompositeEgress(roomName, {
-      file: fileOutput,
-    });
-    console.log("Recording started:", response);
-    return response;
-  } catch (error) {
-    console.error(
-      "Error starting recording:",
-      error.response ? error.response.data : error.message
+class LiveKitService {
+  constructor() {
+    this.livekitHost = LIVEKIT_HOST_INGRESS;
+    this.livekitApiKey = API_KEY;
+    this.livekitApiSecret = API_SECRET;
+    this.egressClient = new EgressClient(
+      this.livekitHost,
+      this.livekitApiKey,
+      this.livekitApiSecret
     );
-    throw error;
   }
-};
 
-// Function to stop recording
-const stopRecording = async (egressId) => {
-  try {
-    const response = await egressClient.stopEgress(egressId);
-    console.log("Recording stopped:", response);
-    return response;
-  } catch (error) {
-    console.error(
-      "Error stopping recording:",
-      error.response ? error.response.data : error.message
-    );
-    throw error;
+  async startYouTubeStream(roomName, youtubeKey, options = {}) {
+    try {
+      console.log('Starting YouTube stream...');
+      console.log('Room Name:', roomName);
+
+     
+      const streamOutput = new StreamOutput({
+        protocol: StreamProtocol.RTMP,
+        urls: [`rtmp://a.rtmp.youtube.com/live2/${youtubeKey}`],
+      });
+
+      const streamInfo = await this.egressClient.startRoomCompositeEgress(
+        roomName,
+        { stream: streamOutput },
+        { layout: 'grid' },
+      );
+
+      return streamInfo;
+    } catch (error) {
+      console.error("Error starting YouTube stream:", error);
+      throw new Error("Failed to start YouTube stream.");
+    }
   }
-};
 
-export { startRecording, stopRecording };
+  async stopStream(egressId) {
+    try {
+      return await this.egressClient.stopEgress(egressId);
+    } catch (error) {
+      console.error("Error stopping stream:", error);
+      throw new Error("Failed to stop stream.");
+    }
+  }
+
+  async  getAllStreams() {
+
+   function convertBigIntToString(obj) {
+      return JSON.parse(JSON.stringify(obj, (_, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+      ));
+    }
+  
+      const streams = await this.egressClient.listEgress();
+    
+   
+     
+        return convertBigIntToString(streams);
+    
+    
+  }
+
+ 
+  
+
+  
+
+
+}
+
+export default new LiveKitService();
