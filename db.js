@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
 import { Room, ApprovalRequest, Participant } from './src/models/roomModel.js';
+import cleanupMongo from './src/utills/cleanupMongo.js';
 
-//const mongoURI = 'mongodb://ec2-13-61-180-139.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
- const mongoURI = 'mongodb://localhost:27017/videoconfrencing';
+  const mongoURI = 'mongodb://ec2-51-21-247-13.eu-north-1.compute.amazonaws.com:27017/videoconfrencing';
+ //const mongoURI = 'mongodb://localhost:27017/videoconfrencing';
+
+
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -12,17 +15,22 @@ mongoose.connect(mongoURI, {
   minPoolSize: 5,
   waitQueueTimeoutMS: 10000,
 })
-  .then(() => console.log('✅ MongoDB connected successfully'))
+  .then(async () => {
+    console.log('✅ MongoDB connected successfully')
+    await cleanupMongo(); // Call the function to check and drop the bad index
+  })
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 export const upsertParticipants = async (participants, roomObjectId) => {
   try {
-    const ops = participants.map((p) => ({
+    const ops = participants
+    .filter((p) => p.identity) // remove null, undefined, empty
+    .map((p) => ({
       updateOne: {
         filter: { identity: p.identity, roomID: roomObjectId },
         update: { $set: { ...p, roomID: roomObjectId } },
-        upsert: true
-      }
+        upsert: true,
+      },
     }));
 
     const result = await Participant.bulkWrite(ops);
@@ -36,14 +44,18 @@ export const upsertParticipants = async (participants, roomObjectId) => {
 
 export const saveRoomData = async (data) => {
   try {
+    console.log('data.roomName.roomName', data.roomName.roomName);
+    console.log('data.roomID', data.roomID);
+    console.log('participants:', JSON.stringify(data.participants));
     const room = await Room.findOneAndUpdate(
       { name: data.roomName.roomName },
       { $set: { roomID: data.roomID, name: data.roomName.roomName } },
       { upsert: true, new: true }
     );
 
+  
     const result = await upsertParticipants(data.participants, room._id);
-    console.log('✅ Room data saved:', result);
+   // console.log('✅ Room data saved:', result);
     if (!result) {
       console.log('⚠️ No participants to save');
       return null;

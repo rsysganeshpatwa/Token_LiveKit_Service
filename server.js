@@ -8,10 +8,15 @@ import roomRoutes from "./src/routes/roomRoutes.js";
 import tokenRoutes from "./src/routes/livekitTokenRoutes.js";
 import welcomeMessageRoutes from "./src/routes/welcomeMessageRoutes.js";
 import approvalRoutes from "./src/routes/approvalRoutes.js";
-import recordingRoutes from "./src/routes/recordingRoutes.js";
+
+
 import { roomDataRoutes } from "./src/routes/roomDataRoutes.js";
 import textractRoutes from "./src/routes/textractRoutes.js";
 import ingressRoutes from "./src/routes/ingressRoutes.js";
+
+import egressRoutes from './src/routes/engressRoutes.js';
+import webhookRoutes  from './src/routes/webhook.js';
+
 
 const app = express();
 app.use(cors());
@@ -40,13 +45,22 @@ app.use("/rooms", roomRoutes);
 app.use("/token", tokenRoutes);
 // Use the approval routes
 app.use("/room-permission", approvalRoutes);
-app.use("/recording", recordingRoutes);
+
 app.use("/room-data-manage", roomDataRoutes);
 app.use("/welcomeMessage",welcomeMessageRoutes);
+
+app.use("/egress", egressRoutes);
 // Use the Textract routes
 app.use('/textract', textractRoutes);
 // Use the ingress routes
 app.use("/ingress", ingressRoutes);
+
+// Use raw body parser only for LiveKit webhooks
+app.use('/livekit-webhook', express.raw({ type: 'application/webhook+json' }));
+
+// Routes
+app.use('/livekit-webhook', webhookRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("Live Kit Token API is running");

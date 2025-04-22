@@ -6,10 +6,8 @@ const svc = new RoomServiceClient(LIVEKIT_HOST, API_KEY, API_SECRET);
 
 export const listRooms = async () => {
 
-  console.log("roomDataStore", svc);
   const list = await svc.listRooms()
-  console.log("roomDataStore", roomDataStore);
-
+ 
   try{
   // delete data from roomDataStore when room is not found in list
    if(list.length === 0){

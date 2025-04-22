@@ -8,6 +8,8 @@ const participantSchema = new mongoose.Schema({
   isVideoEnable: { type: Boolean, required: true },
   isHandRaised: { type: Boolean, required: true },
   isTalkToHostEnable: { type: Boolean, required: true },
+  isPinned: { type: Boolean, required: true },
+  isSpotlight: { type: Boolean, required: true },
   handRaisedTimeStamp: { type: Number, required: true },
   role: { type: String, required: true },
 });

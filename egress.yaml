@@ -1,0 +1,8 @@
+# egress.yaml
+api_key: key1
+api_secret: 108cc770f923cf669912dfed679c73c3
+ws_url: http://ec2-51-21-247-13.eu-north-1.compute.amazonaws.com:7880
+insecure: true
+redis:
+  address: redis:6379
+log_level: info

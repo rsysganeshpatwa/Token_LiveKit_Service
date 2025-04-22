@@ -80,7 +80,7 @@ rtc:
    # - stun.l.google.com:19302
   # # optional TURN servers for clients. This isn't necessary if using embedded TURN server (see below).
   turn_servers:
-     - host: 13.60.14.31
+     - host: 51.21.247.13
        port: 3478
        # tls, tcp, or udp
        protocol: udp
@@ -195,13 +195,13 @@ keys:
 
 # Webhooks
 # when configured, LiveKit notifies your URL handler with room events
-# webhook:
+webhook:
 #   # the API key to use in order to sign the message
 #   # this must match one of the keys LiveKit is configured with
-#   api_key: <api_key>
+  api_key: key1
 #   # list of URLs to be notified of room events
-#   urls:
-#     - https://your-host.com/handler
+  urls: 
+    - https://embedded-poc.rsystems.com/api/livekit-webhook
 
 # Signal Relay
 # since v1.4.0, a more reliable, psrpc based signal relay is available
@@ -272,11 +272,11 @@ keys:
 #   # key_file: /path/to/key.pem
 
 # ingress server
-# ingress:
-#   # Prefix used to generate RTMP URLs for RTMP ingress.
-#   rtmp_base_url: "rtmp://my.domain.com/live"
-#   # Prefix used to generate WHIP URLs for WHIP ingress.
-#   whip_base_url: "http://my.domain.com/whip"
+ingress:
+  # Prefix used to generate RTMP URLs for RTMP ingress.
+  rtmp_base_url: "rtmp://51.21.247.13/live"
+  # Prefix used to generate WHIP URLs for WHIP ingress.
+  whip_base_url: "http://51.21.247.13/whip"
 
 # Region of the current node. Required if using regionaware node selector
 # region: us-west-2

@@ -21,13 +21,13 @@ class LiveKitService {
      
       const streamOutput = new StreamOutput({
         protocol: StreamProtocol.RTMP,
-        urls: [`rtmp://a.rtmp.youtube.com/live2/${youtubeKey}`],
+        urls: [`${youtubeKey}`],
       });
 
       const streamInfo = await this.egressClient.startRoomCompositeEgress(
         roomName,
         { stream: streamOutput },
-        { layout: 'grid' },
+        { layout: 'speaker' },
       );
 
       return streamInfo;

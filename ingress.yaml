@@ -1,0 +1,23 @@
+# required fields
+api_key: key1
+api_secret: 108cc770f923cf669912dfed679c73c3
+ws_url: http://ec2-51-21-247-13.eu-north-1.compute.amazonaws.com:7880
+redis:
+  address: redis:6379
+  # username: redis username
+  # password: redis password
+  # db: redis db
+
+# optional fields
+# health_port: if used, will open an http port for health checks
+# prometheus_port: port used to collect prometheus metrics. Used for autoscaling
+  log_level: debug, info, warn, or error (default info)
+  rtmp_port: 1935 #port to listen to incoming RTMP connection on (default 1935)
+  whip_port: 8080 #port to listen to incoming WHIP calls on (default 8080)
+# http_relay_port: port used to relay data from the main service process to the per ingress handler process (default 9090)
+# rtc_config: configuration for ICE and other RTC related settings, same settings livekit-server RTC configuration. Used for WHIP.
+
+# # cpu costs for various Ingress types with their default values
+# cpu_cost:
+#   rtmp_cpu_cost: 1
+#   whip_cpu_cost: 1
